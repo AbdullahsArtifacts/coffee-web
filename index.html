@@ -183,6 +183,53 @@
   .map-card .addr{font-family:'Fraunces', serif; font-size:1.4rem; margin-bottom:18px;}
   .map-card p{color:var(--cream-dim); font-size:0.92rem; line-height:1.7; margin-bottom:6px;}
 
+  /* ---------- CONTACT FORM ---------- */
+  .contact{background:var(--ink); border-top:1px solid var(--line);}
+  .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start;}
+  .contact-intro h2{font-size:clamp(1.8rem,3vw,2.6rem); margin-top:14px; margin-bottom:20px;}
+  .contact-intro p{color:var(--cream-dim); line-height:1.8; font-size:0.98rem;}
+  .form-group{display:flex; flex-direction:column; gap:6px; margin-bottom:20px;}
+  .form-group label{font-family:'JetBrains Mono',monospace; font-size:0.7rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--copper);}
+  .form-group input,
+  .form-group textarea,
+  .form-group select{
+    background:var(--ink-soft);
+    border:1px solid var(--line);
+    border-radius:2px;
+    color:var(--cream);
+    font-family:'Work Sans',sans-serif;
+    font-size:0.95rem;
+    padding:13px 16px;
+    width:100%;
+    transition:border-color 0.25s;
+    outline:none;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus{border-color:var(--copper);}
+  .form-group textarea{resize:vertical; min-height:130px;}
+  .form-group select option{background:var(--ink-soft);}
+  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .form-submit{
+    background:var(--copper); color:var(--ink); padding:14px 28px; border:none;
+    border-radius:2px; font-weight:600; font-size:0.92rem; cursor:pointer;
+    font-family:'Work Sans',sans-serif; width:100%; transition:background 0.25s, transform 0.2s;
+    letter-spacing:0.02em;
+  }
+  .form-submit:hover{background:var(--gold); transform:translateY(-2px);}
+  .form-submit:active{transform:translateY(0);}
+  .form-success{
+    display:none; background:rgba(112,122,94,0.15); border:1px solid var(--sage);
+    border-radius:2px; padding:20px 24px; text-align:center; color:var(--cream);
+    font-size:0.95rem; line-height:1.6;
+  }
+  .form-success strong{color:var(--gold); display:block; font-family:'Fraunces',serif; font-size:1.2rem; margin-bottom:6px;}
+
+  @media (max-width:860px){
+    .contact-grid{grid-template-columns:1fr; gap:40px;}
+    .form-row{grid-template-columns:1fr;}
+  }
+
   /* ---------- FOOTER ---------- */
   footer{padding:60px 0 40px; border-top:1px solid var(--line);}
   .foot-grid{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:30px;}
@@ -215,8 +262,9 @@
     <a href="#process">Process</a>
     <a href="#menu">Menu</a>
     <a href="#visit">Visit</a>
+    <a href="#contact">Contact</a>
   </div>
-  <a href="#visit" class="nav-cta">Find Us</a>
+  <a href="#contact" class="nav-cta">Find Us</a>
 </nav>
 
 <section class="hero">
@@ -353,6 +401,51 @@
   </div>
 </section>
 
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="contact-grid">
+      <div class="contact-intro reveal">
+        <span class="eyebrow">Get in touch</span>
+        <h2>Wholesale, events, or just want to say hello?</h2>
+        <p>We do wholesale partnerships with small restaurants and offices, private cuppings for groups, and the occasional pop-up. Drop us a message and we'll get back to you within a day.</p>
+      </div>
+
+      <div class="reveal">
+        <form id="contact-form" action="https://formspree.io/f/mlgyegea" method="POST">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Your name</label>
+              <input type="text" id="name" name="name" placeholder="Jane Smith" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email address</label>
+              <input type="email" id="email" name="email" placeholder="jane@example.com" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="reason">What's this about?</label>
+            <select id="reason" name="reason">
+              <option value="wholesale">Wholesale inquiry</option>
+              <option value="event">Private event / cupping</option>
+              <option value="popup">Pop-up collaboration</option>
+              <option value="other">Just saying hi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Tell us a little about what you have in mind..." required></textarea>
+          </div>
+          <button type="submit" class="form-submit">Send message →</button>
+        </form>
+        <div class="form-success" id="form-success">
+          <strong>Message received.</strong>
+          We'll read this carefully and reply within one working day.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="wrap foot-grid">
     <div>
@@ -369,12 +462,41 @@
 </footer>
 
 <script>
+  // scroll reveals
   const obs = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){ e.target.classList.add('in'); }
-    });
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
   }, {threshold:0.15});
   document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  // formspree async submit
+  const form = document.getElementById('contact-form');
+  const success = document.getElementById('form-success');
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const btn = form.querySelector('.form-submit');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if(res.ok){
+        form.style.display = 'none';
+        success.style.display = 'block';
+      } else {
+        btn.textContent = 'Something went wrong — try again';
+        btn.disabled = false;
+      }
+    } catch {
+      btn.textContent = 'No connection — try again';
+      btn.disabled = false;
+    }
+  });
 </script>
 
 </body>
