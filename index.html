@@ -411,7 +411,11 @@
       </div>
 
       <div class="reveal">
-        <form id="contact-form" action="https://formspree.io/f/mlgyegea" method="POST">
+        <form id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+          <input type="hidden" name="access_key" value="33b7523e-f9cb-4dc7-8ced-aac04b640db7">
+          <input type="hidden" name="subject" value="New Enquiry — Ember & Drift">
+          <input type="hidden" name="from_name" value="Ember & Drift">
+          <input type="checkbox" name="botcheck" style="display:none">
           <div class="form-row">
             <div class="form-group">
               <label for="name">Your name</label>
@@ -468,7 +472,7 @@
   }, {threshold:0.15});
   document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 
-  // formspree async submit
+  // web3forms async submit
   const form = document.getElementById('contact-form');
   const success = document.getElementById('form-success');
 
@@ -479,13 +483,14 @@
     btn.disabled = true;
 
     try {
-      const res = await fetch(form.action, {
+      const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         body: new FormData(form),
         headers: { 'Accept': 'application/json' }
       });
+      const data = await res.json();
 
-      if(res.ok){
+      if(data.success){
         form.style.display = 'none';
         success.style.display = 'block';
       } else {
